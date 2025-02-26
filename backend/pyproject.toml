@@ -6,6 +6,11 @@ readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
     "fastapi>=0.115.8",
+    "google-generativeai>=0.8.4",
+    "pymupdf>=1.25.3",
+    "pypdf>=5.3.0",
+    "python-dotenv>=1.0.1",
+    "python-multipart>=0.0.20",
     "uvicorn>=0.34.0",
     "watchfiles>=1.0.4",
 ]
