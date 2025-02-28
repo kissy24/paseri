@@ -1,6 +1,10 @@
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
-from utils import extract_text_from_pdf
+from utils import (
+    extract_text_from_pdf,
+    format_text_to_markdown,
+    convert_markdown_to_html,
+)
 import os
 import shutil
 import google.generativeai as genai
@@ -45,12 +49,19 @@ async def ask_question(filename: str = Form(...), question: str = Form(...)):
     if "ファイルが見つかりません" in text or "テキストを抽出できませんでした" in text:
         return {"answer": text}
 
+    # テキストをMarkdown形式に整形
+    markdown_text = format_text_to_markdown(text)
+
+    # MarkdownをHTMLに変換
+    html_text = convert_markdown_to_html(markdown_text)
+
     # Gemini APIを使用して質問応答
     model = genai.GenerativeModel()
-    prompt = f"質問: {question}\n\n関連するテキスト:\n{text}\n\n回答:"
+    prompt = f"質問: {question}\n\n関連するテキスト:\n{text}\n\n回答:"  # Markdown整形前のテキストを使用
     response = model.generate_content(prompt)
+    answer = response.text
 
-    return {"answer": response.text}
+    return {"answer": answer, "formatted_text": html_text}  # HTML形式のテキストも返す
 
 
 @app.get("/list_pdfs")
